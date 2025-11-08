@@ -1,0 +1,17 @@
+{
+  "name": "Oops! We Saved CO2",
+  "short_name": "CO2 Savings",
+  "description": "Live real-time counter showing CO2 emissions saved due to government shutdown flight reductions",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#064e3b",
+  "theme_color": "#10b981",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/assets/images/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

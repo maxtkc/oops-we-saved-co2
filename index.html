@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CO2 Saved Because of the Government Shutdown | Live Real-Time Data</title>
+    <meta name="description" content="Live real-time counter showing CO2 emissions saved due to FAA flight reductions during the US government shutdown.">
+    <meta name="keywords" content="CO2, emissions, aviation, government shutdown, FAA, flight reductions, climate">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="CO2 Saved Because of the Government Shutdown">
+    <meta property="og:description" content="Live real-time data showing environmental impact of current flight reductions">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/assets/images/favicon.svg">
+    <link rel="icon" type="image/png" href="/assets/images/favicon.png">
+
+    <!-- Preconnect to External Domains -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- External Libraries (CDN for development) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/luxon/3.4.3/luxon.min.js"></script>
+
+    <!-- Preload Critical CSS -->
+    <link rel="preload" href="/src/styles/main.css" as="style">
+    <link rel="stylesheet" href="/src/styles/main.css">
+</head>
+<body class="bg-gray-50 text-gray-900 font-display">
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="fixed inset-0 bg-gray-50 z-50 flex items-center justify-center">
+        <div class="text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-co2-green mx-auto mb-4"></div>
+            <p class="text-gray-600">Estimating live CO2 savings...</p>
+        </div>
+    </div>
+
+  
+    <!-- Hero Section: Live Savings Counter -->
+    <section id="hero" class="hero-section min-h-screen flex items-center justify-center relative overflow-hidden bg-gradient-to-br from-co2-green to-co2-dark">
+        <div class="absolute inset-0 bg-black/20"></div>
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="text-center text-white max-w-4xl mx-auto">
+                <h1 class="hero-title text-4xl md:text-6xl lg:text-7xl font-black mb-6 opacity-0">
+                    <span id="savings-counter" class="text-yellow-300">0</span>
+                    <br>
+                    <span class="text-3xl md:text-4xl lg:text-5xl">TONS OF CO₂ SAVED</span>
+                    <br>
+                    <span class="text-2xl md:text-3xl lg:text-4xl text-yellow-300">BECAUSE OF THE GOVERNMENT SHUTDOWN</span>
+                </h1>
+
+                <div class="savings-counter opacity-0">
+                    <div class="text-xl md:text-2xl mb-4" id="elapsed-time">
+                        Estimating...
+                    </div>
+                    <div class="rate-indicator text-lg md:text-xl mb-8 opacity-90">
+                        <span id="rate-counter">0</span>
+                        <span> tons saved per second</span>
+                    </div>
+                    <div class="affected-airports text-lg md:text-xl mb-12 opacity-90">
+                        <span id="airports-counter">0</span>
+                        <span> airports affected by FAA reductions</span>
+                    </div>
+                </div>
+
+                <div class="flight-cancellations bg-white/10 backdrop-blur-sm rounded-lg p-6 mb-8 opacity-0">
+                    <div class="text-lg font-semibold mb-2">Flight Cancellations Today</div>
+                    <div class="text-3xl font-bold">
+                        <span id="cancellations-counter">0</span>
+                        <span class="text-lg">+ flights cancelled</span>
+                    </div>
+                </div>
+
+                <div class="share-buttons opacity-0">
+                    <button id="share-savings" class="bg-yellow-400 text-gray-900 px-8 py-3 rounded-full font-semibold hover:bg-yellow-300 transition-colors">
+                        Share Current Savings
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scroll Indicator -->
+        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white animate-bounce">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+            </svg>
+        </div>
+    </section>
+
+    <!-- Current Situation Section -->
+    <section id="current" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl md:text-4xl font-bold text-center mb-12 text-co2-dark">
+                    What's Happening Right Now
+                </h2>
+
+                <div class="grid md:grid-cols-2 gap-8 mb-12">
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-red-800 mb-4">FAA Flight Reductions</h3>
+                        <ul class="space-y-2 text-red-700">
+                            <li>• 4% flight reductions ordered at 40 major airports</li>
+                            <li>• 815+ flights cancelled Friday (3% of all US flights)</li>
+                            <li>• Up to 1,800 flights and 268,000 seats affected</li>
+                            <li>• Delta: 170 flights cancelled daily</li>
+                            <li>• American: 220 flights cancelled daily</li>
+                            <li>• <strong>Operations Reduction Schedule:</strong> 4% starting Nov 7, ramping to 6% by Nov 11, 8% by Nov 13, and 10% by Nov 14</li>
+                        </ul>
+                        <div class="mt-4 text-sm">
+                            <a href="https://www.faa.gov/news/" target="_blank" class="text-red-600 hover:text-red-800 underline">
+                                Source: FAA News & Updates
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                        <h3 class="text-xl font-semibold text-blue-800 mb-4">Why This Is Happening</h3>
+                        <ul class="space-y-2 text-blue-700">
+                            <li>• Air traffic controllers working without pay</li>
+                            <li>• Staff shortages due to government shutdown</li>
+                            <li>• Safety measures to prevent overwork</li>
+                            <li>• Temporary operational adjustments</li>
+                        </ul>
+                        <div class="mt-4 text-sm">
+                            <a href="https://www.transportation.gov/" target="_blank" class="text-blue-600 hover:text-blue-800 underline">
+                                Source: US Department of Transportation
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                </div>
+        </div>
+    </section>
+
+    <!-- Understanding the Numbers Section -->
+    <section id="numbers" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl md:text-4xl font-bold text-center mb-12 text-co2-dark">
+                    Understanding the Numbers
+                </h2>
+
+                <div class="bg-white rounded-lg p-8 mb-8">
+                    <h3 class="text-xl font-semibold mb-6">How We Estimate This</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center p-4 bg-gray-50 rounded">
+                            <span>US domestic flights (hourly baseline)</span>
+                            <span class="font-semibold">28,542 tons CO₂</span>
+                        </div>
+                        <div class="flex justify-between items-center p-4 bg-green-50 rounded">
+                            <span>Current 4% reduction</span>
+                            <span class="font-semibold text-green-700">1,142 tons saved per hour</span>
+                        </div>
+                        <div class="flex justify-between items-center p-4 bg-green-100 rounded">
+                            <span>That's</span>
+                            <span class="font-semibold text-green-800">0.32 tons saved every second</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-sm text-gray-600 bg-blue-50 p-3 rounded">
+                        <strong>Estimation Method:</strong> Based on US domestic aviation emissions data from EPA and FAA sources. Educational demonstration of potential environmental impact estimates.
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg p-8 mb-8">
+                    <h3 class="text-xl font-semibold mb-6">Real-Time Examples</h3>
+                    <div class="grid md:grid-cols-3 gap-4">
+                        <div class="text-center p-4 bg-blue-50 rounded">
+                            <div class="text-2xl font-bold text-blue-800 mb-2">1,142</div>
+                            <div class="text-sm text-blue-600">tons saved in one hour</div>
+                        </div>
+                        <div class="text-center p-4 bg-green-50 rounded">
+                            <div class="text-2xl font-bold text-green-800 mb-2">27,408</div>
+                            <div class="text-sm text-green-600">tons saved in one day</div>
+                        </div>
+                        <div class="text-center p-4 bg-purple-50 rounded">
+                            <div class="text-2xl font-bold text-purple-800 mb-2">109,632</div>
+                            <div class="text-sm text-purple-600">tons saved over weekend</div>
+                        </div>
+                    </div>
+                </div>
+
+              </div>
+        </div>
+    </section>
+
+    <!-- Estimation Details Section -->
+    <section id="calculations" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl md:text-4xl font-bold text-center mb-12 text-co2-dark">
+                    Live Estimation Details
+                </h2>
+
+                <div class="bg-gray-50 rounded-lg p-8 mb-8">
+                    <h3 class="text-xl font-semibold mb-6">Current Live Estimates</h3>
+                    <div id="calculation-breakdown" class="space-y-4">
+                        <!-- Estimates will be populated by JavaScript -->
+                        <div class="flex justify-between items-center p-4 bg-white rounded border border-gray-200">
+                            <span>Current Time (ET):</span>
+                            <span id="calc-current-time" class="font-semibold">--</span>
+                        </div>
+                        <div class="flex justify-between items-center p-4 bg-white rounded border border-gray-200">
+                            <span>Current Reduction Level:</span>
+                            <span id="calc-current-reduction" class="font-semibold">--</span>
+                        </div>
+                        <div class="flex justify-between items-center p-4 bg-white rounded border border-gray-200">
+                            <span>Baseline Emissions (US domestic flights):</span>
+                            <span class="font-semibold">28,542 tons CO₂/hour</span>
+                        </div>
+                        <div class="flex justify-between items-center p-4 bg-green-50 rounded border border-green-200">
+                            <span>Current Hourly Savings:</span>
+                            <span id="calc-hourly-savings" class="font-semibold text-green-700">--</span>
+                        </div>
+                        <div class="flex justify-between items-center p-4 bg-blue-50 rounded border border-blue-200">
+                            <span>Current Rate (per second):</span>
+                            <span id="calc-rate-per-second" class="font-semibold text-blue-700">--</span>
+                        </div>
+                        <div class="flex justify-between items-center p-4 bg-purple-50 rounded border border-purple-200">
+                            <span>Time Elapsed Since Nov 7, 6AM ET:</span>
+                            <span id="calc-time-elapsed" class="font-semibold text-purple-700">--</span>
+                        </div>
+                        <div class="flex justify-between items-center p-4 bg-yellow-50 rounded border border-yellow-200">
+                            <span>Total CO₂ Saved:</span>
+                            <span id="calc-total-saved" class="font-semibold text-yellow-800">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-blue-50 rounded-lg p-8">
+                    <h3 class="text-xl font-semibold mb-4">How This is Estimated</h3>
+                    <div id="calculation-formula" class="space-y-3 text-sm">
+                        <!-- Formula breakdown will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+                    <h3 class="text-lg font-semibold mb-3 text-yellow-800">Progressive Reduction Schedule</h3>
+                    <div class="grid md:grid-cols-2 gap-4 text-sm">
+                        <div class="bg-white p-4 rounded border">
+                            <div class="font-semibold text-gray-700">Nov 7-10:</div>
+                            <div class="text-green-600">4% flight reductions</div>
+                            <div class="text-gray-500">1,142 tons CO₂/hour saved</div>
+                        </div>
+                        <div class="bg-white p-4 rounded border">
+                            <div class="font-semibold text-gray-700">Nov 11-12:</div>
+                            <div class="text-green-600">6% flight reductions</div>
+                            <div class="text-gray-500">1,713 tons CO₂/hour saved</div>
+                        </div>
+                        <div class="bg-white p-4 rounded border">
+                            <div class="font-semibold text-gray-700">Nov 13:</div>
+                            <div class="text-green-600">8% flight reductions</div>
+                            <div class="text-gray-500">2,283 tons CO₂/hour saved</div>
+                        </div>
+                        <div class="bg-white p-4 rounded border">
+                            <div class="font-semibold text-gray-700">Nov 14+:</div>
+                            <div class="text-green-600">10% flight reductions</div>
+                            <div class="text-gray-500">2,854 tons CO₂/hour saved</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Time Selector for Future Estimates -->
+                <div class="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4 text-blue-800">Explore Future Estimates</h3>
+                    <div class="bg-white rounded-lg p-4 mb-4">
+                        <label for="time-selector" class="block text-sm font-medium text-gray-700 mb-2">
+                            Select time period for estimates:
+                        </label>
+                        <select id="time-selector" class="w-full md:w-auto px-4 py-2 border border-gray-300 rounded-md focus:ring-co2-green focus:border-co2-green">
+                            <option value="now">Now (current time)</option>
+                            <option value="1week">In 1 week</option>
+                            <option value="2weeks">In 2 weeks</option>
+                            <option value="1month">In 1 month</option>
+                            <option value="2months">In 2 months</option>
+                            <option value="3months">In 3 months</option>
+                            <option value="6months">In 6 months</option>
+                            <option value="1year">In 1 year</option>
+                        </select>
+                    </div>
+
+                    <div id="future-estimates" class="bg-white rounded-lg p-4">
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-green-700 mb-2">
+                                    <span id="future-total-saved">0</span>
+                                </div>
+                                <div class="text-sm text-gray-600">Total CO₂ Saved</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-blue-700 mb-2">
+                                    <span id="future-time-elapsed">0</span>
+                                </div>
+                                <div class="text-sm text-gray-600">Time Elapsed</div>
+                            </div>
+                        </div>
+                        <div class="mt-4 text-sm text-gray-600">
+                            <div id="future-calculation-breakdown">
+                                <!-- Future calculation details will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- What the Savings Mean Section -->
+    <section id="equivalents" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl md:text-4xl font-bold text-center mb-12 text-co2-dark">
+                    What the Savings Actually Mean
+                </h2>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="equivalent-item bg-gray-50 rounded-lg p-6 text-center">
+                        <div class="text-4xl mb-4">🚗</div>
+                        <div class="text-2xl font-bold mb-2">
+                            <span data-equivalent="cars">0</span>
+                        </div>
+                        <div class="text-sm text-gray-600 equivalent-unit">cars not driven for a year</div>
+                    </div>
+
+                    <div class="equivalent-item bg-gray-50 rounded-lg p-6 text-center">
+                        <div class="text-4xl mb-4">🏠</div>
+                        <div class="text-2xl font-bold mb-2">
+                            <span data-equivalent="homes">0</span>
+                        </div>
+                        <div class="text-sm text-gray-600 equivalent-unit">homes powered by solar for a month</div>
+                    </div>
+
+                    <div class="equivalent-item bg-gray-50 rounded-lg p-6 text-center">
+                        <div class="text-4xl mb-4">🌳</div>
+                        <div class="text-2xl font-bold mb-2">
+                            <span data-equivalent="trees">0</span>
+                        </div>
+                        <div class="text-sm text-gray-600 equivalent-unit">trees that don't need to be planted</div>
+                    </div>
+
+                    <div class="equivalent-item bg-gray-50 rounded-lg p-6 text-center">
+                        <div class="text-4xl mb-4">📱</div>
+                        <div class="text-2xl font-bold mb-2">
+                            <span data-equivalent="smartphones">0</span>
+                        </div>
+                        <div class="text-sm text-gray-600 equivalent-unit">smartphones charged for a year</div>
+                    </div>
+
+                    <div class="equivalent-item bg-gray-50 rounded-lg p-6 text-center">
+                        <div class="text-4xl mb-4">💡</div>
+                        <div class="text-2xl font-bold mb-2">
+                            <span data-equivalent="led">0</span>
+                        </div>
+                        <div class="text-sm text-gray-600 equivalent-unit">homes switching all bulbs to LED</div>
+                    </div>
+
+                    <div class="equivalent-item bg-gray-50 rounded-lg p-6 text-center">
+                        <div class="text-4xl mb-4">🔋</div>
+                        <div class="text-2xl font-bold mb-2">
+                            <span data-equivalent="energy">0</span>
+                        </div>
+                        <div class="text-sm text-gray-600 equivalent-unit">homes' annual electricity use</div>
+                    </div>
+                </div>
+
+                <div class="mt-12 bg-co2-green text-white rounded-lg p-8 text-center">
+                    <h3 class="text-2xl font-bold mb-4">Choose Your Comparison</h3>
+                    <div class="flex flex-wrap justify-center gap-4">
+                        <button class="equivalent-selector bg-white text-co2-green px-6 py-2 rounded-full font-semibold hover:bg-gray-100 transition-colors" data-equivalent="cars">
+                            Car Impact
+                        </button>
+                        <button class="equivalent-selector bg-white text-co2-green px-6 py-2 rounded-full font-semibold hover:bg-gray-100 transition-colors" data-equivalent="homes">
+                            Home Energy
+                        </button>
+                        <button class="equivalent-selector bg-white text-co2-green px-6 py-2 rounded-full font-semibold hover:bg-gray-100 transition-colors" data-equivalent="trees">
+                            Tree Impact
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- The Bigger Picture Section -->
+    <section id="bigger-picture" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl md:text-4xl font-bold text-center mb-12 text-co2-dark">
+                    The Bigger Picture
+                </h2>
+
+                <div class="bg-white rounded-lg p-8 mb-8">
+                    <h3 class="text-xl font-semibold mb-6">If These Reductions Continued</h3>
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div>
+                            <div class="text-3xl font-bold text-green-700 mb-2">10 Million Tons</div>
+                            <div class="text-gray-600">Annual CO₂ savings if 4% reduction sustained</div>
+                        </div>
+                        <div>
+                            <div class="text-3xl font-bold text-blue-700 mb-2">25 Million Tons</div>
+                            <div class="text-gray-600">Annual CO₂ savings if 10% reduction implemented (potential future scenario)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-co2-dark text-white rounded-lg p-8">
+                    <h3 class="text-xl font-semibold mb-4">Policy Context</h3>
+                    <p class="text-lg leading-relaxed">
+                        Sometimes necessary operational changes show us what's possible. The current FAA flight reductions,
+                        while challenging for travelers, demonstrate how significant emissions reductions can be achieved
+                        through coordinated action. These temporary measures provide real-world data about the climate
+                        impact of reduced air travel.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Share & Impact Section -->
+    <section id="impact" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto text-center">
+                <h2 class="text-3xl md:text-4xl font-bold mb-12 text-co2-dark">
+                    Share the Real-Time Impact
+                </h2>
+
+                <div class="bg-gray-50 rounded-lg p-8 mb-8">
+                    <h3 class="text-xl font-semibold mb-6">Current Live Statistics</h3>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <div class="text-3xl font-bold text-green-700 mb-2">
+                                <span id="share-savings-amount">0</span> tons
+                            </div>
+                            <div class="text-gray-600">CO₂ saved so far</div>
+                        </div>
+                        <div>
+                            <div class="text-3xl font-bold text-blue-700 mb-2">
+                                <span id="share-time-elapsed">0</span>
+                            </div>
+                            <div class="text-gray-600">Time since reductions began</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <button id="share-twitter" class="bg-blue-400 text-white px-8 py-3 rounded-full font-semibold hover:bg-blue-500 transition-colors w-full md:w-auto">
+                        Share on Twitter
+                    </button>
+                    <button id="share-facebook" class="bg-blue-600 text-white px-8 py-3 rounded-full font-semibold hover:bg-blue-700 transition-colors w-full md:w-auto">
+                        Share on Facebook
+                    </button>
+                    <button id="copy-link" class="bg-gray-700 text-white px-8 py-3 rounded-full font-semibold hover:bg-gray-800 transition-colors w-full md:w-auto">
+                        Copy Link
+                    </button>
+                </div>
+
+                <div class="mt-12 text-gray-600">
+                    <p class="mb-4">
+                        Track the shutdown's environmental impact in real-time. Consider travel alternatives during disruptions.
+                    </p>
+                    <p>
+                        Support solutions for air traffic controller staffing to maintain safe and efficient air travel.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sources Section -->
+    <section id="sources" class="py-16 bg-gray-100">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-2xl font-bold text-center mb-8 text-co2-dark">Sources & Data</h2>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-lg p-6">
+                        <h3 class="font-semibold mb-3">Aviation Data Sources</h3>
+                        <ul class="space-y-2 text-sm text-gray-600">
+                            <li>• <a href="https://www.faa.gov/data_research/" target="_blank" class="text-blue-600 hover:underline">FAA Data & Research - Aviation statistics</a></li>
+                            <li>• <a href="https://www.transtats.bts.gov/" target="_blank" class="text-blue-600 hover:underline">BTS TranStats - Flight data & statistics</a></li>
+                            <li>• <a href="https://www.faa.gov/" target="_blank" class="text-blue-600 hover:underline">FAA - Aviation regulations & operations</a></li>
+                            <li>• <a href="https://www.airlines.org/" target="_blank" class="text-blue-600 hover:underline">Airlines for America - Industry data</a></li>
+                            <li>• <a href="https://www.transportation.gov/" target="_blank" class="text-blue-600 hover:underline">DOT - Transportation policy</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-white rounded-lg p-6">
+                        <h3 class="font-semibold mb-3">Emissions Estimations</h3>
+                        <ul class="space-y-2 text-sm text-gray-600">
+                            <li>• <a href="https://www.epa.gov/" target="_blank" class="text-blue-600 hover:underline">EPA - Environmental standards & data</a></li>
+                            <li>• <a href="https://www.eia.gov/" target="_blank" class="text-blue-600 hover:underline">EIA - Energy & emissions data</a></li>
+                            <li>• <a href="https://www.ipcc.ch/" target="_blank" class="text-blue-600 hover:underline">IPCC - Climate science guidelines</a></li>
+                            <li>• <a href="https://www.faa.gov/" target="_blank" class="text-blue-600 hover:underline">FAA - Aviation authority</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg p-8 mt-8">
+                    <h3 class="text-xl font-semibold mb-6">Data Sources & Methodology</h3>
+
+                    <div class="space-y-6">
+                        <div>
+                            <h4 class="font-semibold mb-2">Aviation Emissions Baseline</h4>
+                            <p class="text-sm text-gray-600 mb-2">
+                                <strong>28,542 tons CO₂/hour</strong> - Based on US domestic aviation emissions data from EPA greenhouse gas inventory and FAA aviation fuel consumption reports.
+                            </p>
+                            <p class="text-xs text-gray-500">
+                                Sources: <a href="https://www.epa.gov/" target="_blank" class="text-blue-600 hover:underline">EPA</a>, <a href="https://www.faa.gov/data_research/" target="_blank" class="text-blue-600 hover:underline">FAA Data & Research</a>
+                            </p>
+                        </div>
+
+                        <div>
+                            <h4 class="font-semibold mb-2">Flight Reduction Scenarios</h4>
+                            <p class="text-sm text-gray-600 mb-2">
+                                <strong>40 major airports, 815+ flights cancelled, 268,000 seats affected</strong> - Representative scenario based on typical US air traffic patterns and historical reduction data.
+                            </p>
+                            <p class="text-xs text-gray-500">
+                                Sources: <a href="https://www.transtats.bts.gov/" target="_blank" class="text-blue-600 hover:underline">BTS TranStats</a>, <a href="https://www.airlines.org/" target="_blank" class="text-blue-600 hover:underline">Airlines for America</a>
+                            </p>
+                        </div>
+
+                        <div>
+                            <h4 class="font-semibold mb-2">CO₂ Equivalency Estimations</h4>
+                            <p class="text-sm text-gray-600 mb-2">
+                                Environmental equivalencies use standard EPA conversion factors for educational purposes.
+                            </p>
+                            <ul class="text-xs text-gray-500 space-y-1">
+                                <li>• Cars: 0.00022 cars/year per ton CO₂</li>
+                                <li>• Homes: 0.11 homes/month solar per ton CO₂</li>
+                                <li>• Trees: 16.5 trees per ton CO₂</li>
+                                <li>• Smartphones: 1,230 phones/year per ton CO₂</li>
+                            </ul>
+                            <p class="text-xs text-gray-500 mt-2">
+                                Source: <a href="https://www.epa.gov/" target="_blank" class="text-blue-600 hover:underline">EPA Greenhouse Gas Equivalencies</a>
+                            </p>
+                        </div>
+
+                        <div class="bg-yellow-50 p-4 rounded border border-yellow-200">
+                            <p class="text-sm text-yellow-800">
+                                <strong>Educational Purpose:</strong> This demonstration illustrates how environmental impact estimates work using standard industry data. All numbers are for educational illustration only.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 text-center text-sm text-gray-500">
+                    <p>Live estimates based on standard aviation emissions data and hypothetical reduction scenarios for educational purposes.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-co2-dark text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="text-center">
+                <div class="mb-4">
+                    <span class="text-lg font-semibold">CO2 Savings Live</span>
+                </div>
+                <div class="text-sm opacity-75">
+                    Real-time data visualization of environmental impact during US government shutdown
+                </div>
+                <div class="mt-4 text-xs opacity-50">
+                    Data sources: FAA, BTS TranStats, EPA, EIA, IPCC, Airlines for America - Educational demonstration
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Component Scripts -->
+    <script src="/src/components/EquivalentCalculator.js"></script>
+
+    <!-- Main Application -->
+    <script type="module" src="/src/main.js"></script>
+</body>
+</html>
