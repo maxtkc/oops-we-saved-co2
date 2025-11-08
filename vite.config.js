@@ -2,19 +2,11 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   root: '.',
+  base: process.env.NODE_ENV === 'production' ? '/oops-we-saved-co2/' : '/',
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
-    sourcemap: true,
-    minify: 'terser',
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['gsap', 'd3', 'luxon'],
-          ui: ['lenis', 'countup.js']
-        }
-      }
-    }
+    sourcemap: true
   },
   server: {
     port: 3000,
