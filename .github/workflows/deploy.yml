@@ -29,11 +29,17 @@ jobs:
         # Create dist directory
         mkdir -p dist
 
-        # Copy all files to dist
-        cp -r * dist/
+        # Copy all files to dist, excluding dist itself and other unwanted directories
+        cp -r assets docs src styles *.html *.json *.js *.css *.md *.config.js dist/ 2>/dev/null || true
 
-        # Remove .github directory from dist
+        # Remove .github directory from dist (if it was copied)
         rm -rf dist/.github
+
+        # Remove node_modules if it was copied
+        rm -rf dist/node_modules
+
+        # Remove dist directory if it was recursively copied
+        rm -rf dist/dist
 
         # Update paths for GitHub Pages
         # For now, we'll use relative paths since we're not building with a complex bundler
