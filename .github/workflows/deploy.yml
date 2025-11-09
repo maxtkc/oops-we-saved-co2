@@ -24,28 +24,19 @@ jobs:
     - name: Setup Pages
       uses: actions/configure-pages@v4
 
-    - name: Build artifact
-      run: |
-        # Create dist directory
-        mkdir -p dist
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
 
-        # Copy all files to dist, excluding dist itself and other unwanted directories
-        cp -r assets docs src styles *.html *.json *.js *.css *.md *.config.js dist/ 2>/dev/null || true
+    - name: Install dependencies
+      run: npm ci
 
-        # Remove .github directory from dist (if it was copied)
-        rm -rf dist/.github
+    - name: Build project
+      run: npm run build
 
-        # Remove node_modules if it was copied
-        rm -rf dist/node_modules
-
-        # Remove dist directory if it was recursively copied
-        rm -rf dist/dist
-
-        # Update paths for GitHub Pages
-        # For now, we'll use relative paths since we're not building with a complex bundler
-
-        # Create a simple .nojekyll file
-        touch dist/.nojekyll
+    - name: Create .nojekyll file
+      run: touch dist/.nojekyll
 
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v3
