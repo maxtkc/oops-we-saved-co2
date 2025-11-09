@@ -1,5 +1,6 @@
 // Main application entry point
-// CSS is loaded via link tag in HTML
+import './styles/main.css';
+import { EquivalentCalculator } from './components/EquivalentCalculator.js';
 
 // Global variables
 let liveCounter = null;
@@ -562,8 +563,8 @@ class LiveShutdownSavingsCounter {
 // Initialize all additional components
 function initializeComponents() {
     // Initialize equivalent calculator
-    if (window.EquivalentCalculator) {
-        equivalentCalculator = new window.EquivalentCalculator();
+    if (EquivalentCalculator) {
+        equivalentCalculator = new EquivalentCalculator();
         window.equivalentCalculator = equivalentCalculator;
     }
   }

@@ -285,5 +285,8 @@ class EquivalentCalculator {
     }
 }
 
-// Export for global access
+// Export for ES modules
+export { EquivalentCalculator };
+
+// Export for global access (for backward compatibility)
 window.EquivalentCalculator = EquivalentCalculator;
